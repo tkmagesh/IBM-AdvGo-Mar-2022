@@ -61,3 +61,7 @@ Concurrency
     Receive operation is ALWAYS a blocking operation
 
     Send operation is blocked until a Receive operation is initiated
+
+Assignment-01:
+    modify demo-20.go to generate the prime numbers until the user hits ENTER key
+        NOTE: do NOT capture the ENTER key from the genPrimes function
