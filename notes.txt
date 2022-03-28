@@ -34,4 +34,26 @@ Higher Order functions
         Functions can be passed as arguments to other functions
         Functions can be returned as return values by other functions
 
-    
+Concurrency
+    Golang is built FOR concurrency
+    go, select, range, chan (data type), <- (channel operator)
+
+    DO NOT ASSUME:
+        1. the time taken for a goroutine to complete
+        2. the order in which goroutines invoked / complete
+
+    To detect race conditions
+        go run --race demo-06.go 
+        
+        go build --race demo-06.go
+
+
+    channel
+        //create
+        ch := make(chan int)
+
+        //send data 
+        ch <- 100
+
+        //receive data
+        <- ch
