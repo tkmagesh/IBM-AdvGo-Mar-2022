@@ -57,3 +57,5 @@ Concurrency
 
         //receive data
         <- ch
+
+    Receive operation is ALWAYS a blocking operation
