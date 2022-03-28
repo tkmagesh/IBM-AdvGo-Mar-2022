@@ -59,3 +59,5 @@ Concurrency
         <- ch
 
     Receive operation is ALWAYS a blocking operation
+
+    Send operation is blocked until a Receive operation is initiated
