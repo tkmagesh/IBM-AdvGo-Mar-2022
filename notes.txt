@@ -27,3 +27,11 @@ concurrency
 interfaces
     implementation is 'implicit'
     
+
+Higher Order functions
+    Functions that can be treated like 'data'
+        Functions can be assigned to variables
+        Functions can be passed as arguments to other functions
+        Functions can be returned as return values by other functions
+
+    
