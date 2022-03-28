@@ -1,12 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+)
 
 func main() {
-	//ch := make(chan int) //unbuffered channel
+	ch := make(chan int) //unbuffered channel
 	//ch := make(chan int, 1) //buffered channel (size 1)
-	ch := make(chan int, 2) //buffered channel (size 2)
+	//ch := make(chan int, 2) //buffered channel (size 2)
 	go writeData(ch)
+
+	runtime.Gosched()
 
 	fmt.Println("[@main] attempting to read 10")
 	fmt.Println(<-ch)
