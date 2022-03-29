@@ -87,3 +87,38 @@ Resource Pooling
         3. When a resource is acquired, it should not be allowed to be acquired again until it is released
 
     
+GRPC
+    http2
+
+    Communication Patterns
+        Request & Response
+        Server Streaming (One Request & Stream of Responses)
+        Client Streaming (Stream of Requests & One Response)
+        Bidirection Streaming (Stream of Requests & Stream of Responses)
+
+    Create a .proto file with the following contracts
+        Service contract
+        Operation Contract
+        Message Contract
+
+    ON the service side
+        Create a Stub using the .proto file
+        Implement the service
+        Host the service
+
+    On the client side
+        Create a proxy using the .proto file
+        Us the proxy to Call the service
+
+Installation
+        go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+        go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+        (when the above is installed, executables are created in the gopath/bin folder. Make sure this path is set in environment variables)
+
+    Windows
+        Install the binaries from https://github.com/protocolbuffers/protobuf/releases/
+
+    Mac
+        brew install protoc-gen-go
+        brew install protoc-gen-go-grpc
