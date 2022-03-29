@@ -53,4 +53,5 @@ LOOP:
 			fmt.Println("doing something else")
 		}
 	}
+	fmt.Println("doSomethingElse completed")
 }
