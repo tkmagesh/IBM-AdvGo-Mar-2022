@@ -65,3 +65,25 @@ Concurrency
 Assignment-01:
     modify demo-20.go to generate the prime numbers until the user hits ENTER key
         NOTE: do NOT capture the ENTER key from the genPrimes function
+
+Resource Pooling
+    Create a pool with a size & factory
+
+    Acquire Resource from the pool
+        if there are resources in the pool
+            return from the pool
+        else
+            use the factory to create the resource and return it
+
+    Release Resource to the pool
+        if the pool is full
+            discard the resource
+        else
+            add the resource to the pool
+
+    IMPORTANT:
+        1. the factory should be thread-safe
+        2. the pool should be thread-safe
+        3. When a resource is acquired, it should not be allowed to be acquired again until it is released
+
+    
