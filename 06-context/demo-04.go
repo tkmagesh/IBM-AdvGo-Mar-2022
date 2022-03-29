@@ -10,8 +10,11 @@ import (
 func main() {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	ctx, cancel := context.WithCancel(context.Background())
+
+	ctxWithValue := context.WithValue(context.Background(), "root-key", "root-value")
+	ctx, cancel := context.WithCancel(ctxWithValue)
 	defer cancel()
+
 	go doSomething(wg, ctx)
 	go func() {
 		fmt.Println("Hit ENTER to stop....")
@@ -24,8 +27,10 @@ func main() {
 
 func doSomething(wg *sync.WaitGroup, ctx context.Context) {
 	defer wg.Done()
+	fmt.Println("[doSomething] Value from context = ", ctx.Value("root-key"))
 	wg.Add(1)
-	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	dsCtx := context.WithValue(ctx, "child-key", "child-value")
+	timeoutCtx, cancel := context.WithTimeout(dsCtx, 10*time.Second)
 	defer cancel()
 	go doSomethingElse(wg, timeoutCtx)
 LOOP:
@@ -42,6 +47,8 @@ LOOP:
 
 func doSomethingElse(wg *sync.WaitGroup, ctx context.Context) {
 	defer wg.Done()
+	fmt.Println("[doSomethingElse] Value from context[root] = ", ctx.Value("root-key"))
+	fmt.Println("[doSomethingElse] Value from context[child] = ", ctx.Value("child-key"))
 LOOP:
 	for {
 		select {
