@@ -36,7 +36,7 @@ func New(factory func() (io.Closer, error), size int) (*Pool, error) {
 func (p *Pool) Acquire() (io.Closer, error) {
 	p.mutex.Lock()
 	{
-		if p.resourcesCreated < p.size {
+		if len(p.resources) == 0 && p.resourcesCreated < p.size {
 			fmt.Println("Acquire : From factory")
 			r, err := p.factory()
 			if err != nil {
