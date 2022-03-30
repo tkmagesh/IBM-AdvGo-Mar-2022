@@ -83,6 +83,7 @@ func (s *appService) Greet(serverStream proto.AppService_GreetServer) error {
 		time.Sleep(1 * time.Second)
 		req, err := serverStream.Recv()
 		if err == io.EOF {
+			fmt.Println("All requests are processed")
 			break
 		}
 		if err != nil {

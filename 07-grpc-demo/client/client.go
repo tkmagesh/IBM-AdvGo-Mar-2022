@@ -89,6 +89,7 @@ func doBidirectionalStreaming(ctx context.Context, client proto.AppServiceClient
 		proto.PersonName{FirstName: "Ganesh", LastName: "Easwaran"},
 		proto.PersonName{FirstName: "Ramesh", LastName: "Jayaraman"},
 	}
+
 	clientStream, err := client.Greet(ctx)
 	if err != nil {
 		log.Fatalln(err)
@@ -118,5 +119,6 @@ func doBidirectionalStreaming(ctx context.Context, client proto.AppServiceClient
 		fmt.Printf("Sending : %s, %s\n", personName.GetFirstName(), personName.GetLastName())
 		clientStream.Send(req)
 	}
+	clientStream.CloseSend()
 	<-doneCh
 }
