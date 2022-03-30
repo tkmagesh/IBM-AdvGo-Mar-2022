@@ -125,3 +125,20 @@ Installation
 
 To generate the proxy and stub
     protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/service.proto
+
+HTTP Services
+    Only using the platform APIS
+        How to handle errors?
+        How to serialize / deserialze data?
+        How to log the request and response?
+
+    Routing Libraries
+        router.GET("/", func(){
+
+        })
+
+    Web Frameworks
+        Gin
+        
+    Microservice
+        go-kit

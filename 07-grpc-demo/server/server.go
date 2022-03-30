@@ -17,14 +17,21 @@ type appService struct {
 }
 
 func (s *appService) Add(ctx context.Context, req *proto.AddRequest) (*proto.AddResponse, error) {
-	x := req.GetX()
-	y := req.GetY()
-	result := x + y
-	fmt.Printf("Add Operation: X = %d, Y = %d\n", x, y)
-	res := &proto.AddResponse{
-		Result: result,
+	time.Sleep(5 * time.Second)
+	select {
+	case <-ctx.Done():
+		log.Println("Timeout exceeded")
+	default:
+		x := req.GetX()
+		y := req.GetY()
+		result := x + y
+		fmt.Printf("Add Operation: X = %d, Y = %d\n", x, y)
+		res := &proto.AddResponse{
+			Result: result,
+		}
+		return res, nil
 	}
-	return res, nil
+	return nil, nil
 }
 
 func (s *appService) GeneratePrimes(req *proto.PrimeRequest, serverStream proto.AppService_GeneratePrimesServer) error {
@@ -105,6 +112,14 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	/* certFile := "ssl/server.crt"
+	keyFile := "ssl/server.pem"
+	creds, sslErr := credentials.NewServerTLSFromFile(certFile, keyFile)
+	if sslErr != nil {
+		log.Fatalln(sslErr)
+	}
+	opts := grpc.Creds(creds) */
 	grpcServer := grpc.NewServer()
 	proto.RegisterAppServiceServer(grpcServer, s)
 	grpcServer.Serve(listener)

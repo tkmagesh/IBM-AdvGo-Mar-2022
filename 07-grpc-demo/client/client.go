@@ -9,21 +9,35 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 )
 
 func main() {
-	clientConn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	/* certFile := "ssl/ca.crt"
+	creds, sslErr := credentials.NewClientTLSFromFile(certFile, "")
+	if sslErr != nil {
+		log.Fatalln(sslErr)
+	} */
+
+	insecureOptions := grpc.WithTransportCredentials(insecure.NewCredentials())
+	clientConn, err := grpc.Dial("localhost:50051", insecureOptions)
+
+	/* secureOptions := grpc.WithTransportCredentials(creds)
+	clientConn, err := grpc.Dial("localhost:50051", secureOptions) */
+
 	if err != nil {
 		log.Fatalln(err)
 	}
 	client := proto.NewAppServiceClient(clientConn)
 	ctx := context.Background()
 
-	//doRequestResponse(ctx, client)
+	doRequestResponse(ctx, client)
 	//doServerStreaming(ctx, client)
 	//doClientStreaming(ctx, client)
-	doBidirectionalStreaming(ctx, client)
+	//doBidirectionalStreaming(ctx, client)
+	//doRequestResponseWithTimeout(ctx, client)
 }
 
 func doRequestResponse(ctx context.Context, client proto.AppServiceClient) {
@@ -33,6 +47,29 @@ func doRequestResponse(ctx context.Context, client proto.AppServiceClient) {
 	}
 	res, err := client.Add(ctx, req)
 	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("Add Result = ", res.GetResult())
+}
+
+func doRequestResponseWithTimeout(ctx context.Context, client proto.AppServiceClient) {
+	req := &proto.AddRequest{
+		X: 100,
+		Y: 200,
+	}
+	timeoutCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	res, err := client.Add(timeoutCtx, req)
+	if err != nil {
+		statusErr, ok := status.FromError(err)
+		if ok {
+			if statusErr.Code() == codes.DeadlineExceeded {
+				log.Println("Timeout error")
+			} else {
+				log.Fatalln(err)
+			}
+		}
 		log.Fatalln(err)
 	}
 	fmt.Println("Add Result = ", res.GetResult())
