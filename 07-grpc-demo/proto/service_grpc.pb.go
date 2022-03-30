@@ -22,8 +22,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AppServiceClient interface {
-	// Operation Contract
+	// Request & Response
 	Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error)
+	// Server Streaming
+	GeneratePrimes(ctx context.Context, in *PrimeRequest, opts ...grpc.CallOption) (AppService_GeneratePrimesClient, error)
 }
 
 type appServiceClient struct {
@@ -43,12 +45,46 @@ func (c *appServiceClient) Add(ctx context.Context, in *AddRequest, opts ...grpc
 	return out, nil
 }
 
+func (c *appServiceClient) GeneratePrimes(ctx context.Context, in *PrimeRequest, opts ...grpc.CallOption) (AppService_GeneratePrimesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &AppService_ServiceDesc.Streams[0], "/proto.AppService/GeneratePrimes", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &appServiceGeneratePrimesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type AppService_GeneratePrimesClient interface {
+	Recv() (*PrimeResponse, error)
+	grpc.ClientStream
+}
+
+type appServiceGeneratePrimesClient struct {
+	grpc.ClientStream
+}
+
+func (x *appServiceGeneratePrimesClient) Recv() (*PrimeResponse, error) {
+	m := new(PrimeResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // AppServiceServer is the server API for AppService service.
 // All implementations must embed UnimplementedAppServiceServer
 // for forward compatibility
 type AppServiceServer interface {
-	// Operation Contract
+	// Request & Response
 	Add(context.Context, *AddRequest) (*AddResponse, error)
+	// Server Streaming
+	GeneratePrimes(*PrimeRequest, AppService_GeneratePrimesServer) error
 	mustEmbedUnimplementedAppServiceServer()
 }
 
@@ -58,6 +94,9 @@ type UnimplementedAppServiceServer struct {
 
 func (UnimplementedAppServiceServer) Add(context.Context, *AddRequest) (*AddResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedAppServiceServer) GeneratePrimes(*PrimeRequest, AppService_GeneratePrimesServer) error {
+	return status.Errorf(codes.Unimplemented, "method GeneratePrimes not implemented")
 }
 func (UnimplementedAppServiceServer) mustEmbedUnimplementedAppServiceServer() {}
 
@@ -90,6 +129,27 @@ func _AppService_Add_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AppService_GeneratePrimes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PrimeRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AppServiceServer).GeneratePrimes(m, &appServiceGeneratePrimesServer{stream})
+}
+
+type AppService_GeneratePrimesServer interface {
+	Send(*PrimeResponse) error
+	grpc.ServerStream
+}
+
+type appServiceGeneratePrimesServer struct {
+	grpc.ServerStream
+}
+
+func (x *appServiceGeneratePrimesServer) Send(m *PrimeResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // AppService_ServiceDesc is the grpc.ServiceDesc for AppService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +162,12 @@ var AppService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AppService_Add_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GeneratePrimes",
+			Handler:       _AppService_GeneratePrimes_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/service.proto",
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"grpc-demo/proto"
+	"io"
 	"log"
 
 	"google.golang.org/grpc"
@@ -17,6 +18,12 @@ func main() {
 	}
 	client := proto.NewAppServiceClient(clientConn)
 	ctx := context.Background()
+
+	//doRequestResponse(ctx, client)
+	doServerStreaming(ctx, client)
+}
+
+func doRequestResponse(ctx context.Context, client proto.AppServiceClient) {
 	req := &proto.AddRequest{
 		X: 100,
 		Y: 200,
@@ -26,4 +33,26 @@ func main() {
 		log.Fatalln(err)
 	}
 	fmt.Println("Add Result = ", res.GetResult())
+}
+
+func doServerStreaming(ctx context.Context, client proto.AppServiceClient) {
+	req := &proto.PrimeRequest{
+		Start: 2,
+		End:   100,
+	}
+	clientStream, err := client.GeneratePrimes(ctx, req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for {
+		res, err := clientStream.Recv()
+		if err == io.EOF {
+			fmt.Println("Thats all folks")
+			break
+		}
+		if err != nil {
+			log.Fatalln(err)
+		}
+		fmt.Printf("Prime No = %d\n", res.GetPrimeNo())
+	}
 }
