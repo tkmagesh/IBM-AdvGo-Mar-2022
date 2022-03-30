@@ -22,7 +22,8 @@ func main() {
 
 	//doRequestResponse(ctx, client)
 	//doServerStreaming(ctx, client)
-	doClientStreaming(ctx, client)
+	//doClientStreaming(ctx, client)
+	doBidirectionalStreaming(ctx, client)
 }
 
 func doRequestResponse(ctx context.Context, client proto.AppServiceClient) {
@@ -78,4 +79,44 @@ func doClientStreaming(ctx context.Context, client proto.AppServiceClient) {
 		log.Fatalln(err)
 	}
 	fmt.Printf("Response from server : Count = %d, Average = %d\n", res.GetCount(), res.GetAverage())
+}
+
+func doBidirectionalStreaming(ctx context.Context, client proto.AppServiceClient) {
+	personNames := []proto.PersonName{
+		proto.PersonName{FirstName: "Magesh", LastName: "Kuppan"},
+		proto.PersonName{FirstName: "Suresh", LastName: "Kannan"},
+		proto.PersonName{FirstName: "Rajesh", LastName: "Pandit"},
+		proto.PersonName{FirstName: "Ganesh", LastName: "Easwaran"},
+		proto.PersonName{FirstName: "Ramesh", LastName: "Jayaraman"},
+	}
+	clientStream, err := client.Greet(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	doneCh := make(chan struct{})
+	go func() {
+		for {
+			res, err := clientStream.Recv()
+			if err == io.EOF {
+				close(doneCh)
+				break
+			}
+			if err != nil {
+				close(doneCh)
+				log.Fatalln(err)
+			}
+			fmt.Printf("Response from Server : %s\n", res.GetGreetMessage())
+		}
+	}()
+
+	for _, personName := range personNames {
+		time.Sleep(500 * time.Millisecond)
+		req := &proto.GreetRequest{
+			Person: &personName,
+		}
+		fmt.Printf("Sending : %s, %s\n", personName.GetFirstName(), personName.GetLastName())
+		clientStream.Send(req)
+	}
+	<-doneCh
 }

@@ -78,6 +78,26 @@ func (s *appService) CalculateAverage(serverStream proto.AppService_CalculateAve
 	return nil
 }
 
+func (s *appService) Greet(serverStream proto.AppService_GreetServer) error {
+	for {
+		time.Sleep(1 * time.Second)
+		req, err := serverStream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalln(err)
+		}
+		person := req.GetPerson()
+		msg := fmt.Sprintf("Hi %s %s!", person.GetFirstName(), person.GetLastName())
+		res := &proto.GreetResponse{
+			GreetMessage: msg,
+		}
+		serverStream.Send(res)
+	}
+	return nil
+}
+
 func main() {
 	s := &appService{}
 	listener, err := net.Listen("tcp", ":50051")
