@@ -142,3 +142,22 @@ HTTP Services
         
     Microservice
         go-kit
+
+HTML5 (Browser as an OS)
+
+    Persist data on the client side
+        Local Storage
+        Session Storage
+        IndexedDB
+    Make the application available offline
+        Offline Application Cache
+        Service Worker
+    Real time updates from the server
+        Server Sent Events
+        Web Sockets
+    Multithreading
+        Web Workers
+
+Web Socket
+    gorilla/websocket
+        

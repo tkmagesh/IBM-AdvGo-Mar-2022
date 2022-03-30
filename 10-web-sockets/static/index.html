@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        (function () {
+            var ws;
+            function onBtnSend() {
+                var msg = document.getElementById('txtMessage').value
+                ws.send(msg);
+            }
+            function onServerMessage(evt) {
+                var msg = evt.data;
+                document.getElementById('divMessages').innerHTML += msg + '<br/>';
+            }
+            function onDocumentLoad() {
+                ws = new WebSocket('ws://localhost:8080/chat')
+                document.getElementById('btnSend').addEventListener('click', onBtnSend);
+                ws.addEventListener('message', onServerMessage);
+            }
+            window.addEventListener('DOMContentLoaded', onDocumentLoad);
+        })()
+    </script>
+</head>
+
+<body>
+    <h3>Chat</h3>
+    <hr>
+    <input type="text" name="" id="txtMessage">
+    <input type="button" value="Send" id="btnSend">
+    <div id="divMessages"></div>
+</body>
+
+</html>
