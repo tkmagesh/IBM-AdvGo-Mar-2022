@@ -179,6 +179,13 @@ Profiling
 To profile the application
     go tool pprof -http=:8080 demo-06.go
 
+    OR
+
+    import _ "net/http/pprof"
+    go func(){
+        http.ListenAndServer(":8080", nil)
+    }
+
 To analyze the profile data
     go tool pprof http://localhost:8080/debug/pprof/profile
 
